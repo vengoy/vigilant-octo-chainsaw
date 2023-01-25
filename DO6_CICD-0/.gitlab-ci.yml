@@ -1,0 +1,77 @@
+---
+stages:
+  - build
+  - tests
+  - deploy
+  - notify
+
+building:
+  stage: build
+  before_script:
+    - bash src/06.sh
+  script:
+    - make src/cat/s21_cat
+    - make src/grep/s21_grep
+    - echo "$CI_JOB_STATUS"
+  artifacts:
+    paths:
+      - src/cat/s21_cat
+      - src/grep/s21_grep
+    expire_in: 30 days
+  after_script:
+    - echo "$CI_JOB_STATUS"
+    - bash src/06.sh
+
+codeStyle:
+  stage: tests
+  before_script:
+    - bash src/06.sh
+  script:
+    - cd src
+    - bash style_test.sh
+    - cd ..
+    - echo "$CI_JOB_STATUS"
+  after_script:
+    - echo "$CI_JOB_STATUS"
+    - bash src/06.sh
+  when: on_success
+
+integrationTestsCat:
+  stage: tests
+  before_script:
+    - bash src/06.sh
+  script:
+    - cd src/cat
+    - make test
+    - echo "$CI_JOB_STATUS"
+  after_script:
+    - echo "$CI_JOB_STATUS"
+    - bash src/06.sh
+  when: on_success
+
+integrationTestsGrep:
+  stage: tests
+  before_script:
+    - bash src/06.sh
+  script:
+    - cd src/grep
+    - make test
+    - echo "$CI_JOB_STATUS"
+  after_script:
+    - echo "$CI_JOB_STATUS"
+    - bash src/06.sh
+  when: on_success
+
+deployTo_WS2:
+  stage: deploy
+  before_script:
+    - bash src/06.sh
+  script:
+    - cd src
+    - ./05.sh
+    - ls -la
+  after_script:
+    - echo "$CI_JOB_STATUS"
+    - cd src
+    - bash 06.sh
+  when: on_success

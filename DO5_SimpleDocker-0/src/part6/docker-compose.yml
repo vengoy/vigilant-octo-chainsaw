@@ -1,0 +1,18 @@
+services:
+  server:
+    build: ./server
+    networks:
+      - local
+  
+  proxy:
+    build: ./proxy
+    networks:
+      - local
+    ports:
+      - "80:8080"
+    depends_on:
+      - server
+
+networks:
+  local:
+    driver: bridge
